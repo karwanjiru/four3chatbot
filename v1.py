@@ -7,9 +7,7 @@ import time
 import webbrowser
 
 # Load environment variables
-load_dotenv("api.env")
-
-replicate_api = os.getenv("REPLICATE_API_TOKEN")
+load_dotenv(dotenv_path="api.env")
 
 # Pre-prompt for the Llama model
 PRE_PROMPT = "You are a helpful personal assistant. You do not respond as 'User' or pretend to be 'User'. You only respond once as a Personal Assistant."
@@ -23,10 +21,11 @@ with st.sidebar:
     st.write('This chatbot is created to assist in making career choices.')
 
 
+    replicate_api = os.getenv('REPLICATE_API_TOKEN')
     if replicate_api:
         st.success('API key loaded from environment!', icon='✅')
     else:
-        st.warning('API key not found in environment. Please contact your API provider.', icon='⚠️')
+        st.warning('API key not found in environment. Please contact your API.', icon='⚠️')
 
     st.subheader('Models and parameters')
     selected_model = st.selectbox('Choose a Llama2 model', ['Llama2-7B', 'Llama2-13B'], key='selected_model')
@@ -35,7 +34,7 @@ with st.sidebar:
     elif selected_model == 'Llama2-13B':
         llm = 'a16z-infra/llama13b-v2-chat:df7690f1994d94e96ad9d568eac121aecf50684a0b0963b25a41cc40061269e5'
     
-    st.markdown("📖 Explore our career-focused social blog app for expert advice, valuable insights, and connections to fuel your professional growth. [Join us now!] (https://blog.streamlit.io/how-to-build-a-llama-2-chatbot/)!")
+    st.markdown("📖 Explore our career-focused social blog app for expert advice, valuable insights, and connections to fuel your professional growth. Join us now @ [Four3](https://blog.streamlit.io/how-to-build-a-llama-2-chatbot/)!")
 
     # Button to navigate back to the blog app
     if st.button("Back to Blog App"):
