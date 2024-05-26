@@ -37,7 +37,7 @@ with st.sidebar:
     st.markdown("📖 Explore our career-focused social blog app for expert advice, valuable insights, and connections to fuel your professional growth. Join us now @ [Four3](https://tr7j.github.io/Blogging-app)!")
 
     # Button to navigate back to the blog app
-    if st.button("Back to Blog App"):
+    if st.button("Click ☝️"):
         st.markdown("<a href='https://tr7j.github.io/Blogging-app/' target='_blank'>Click here</a>", unsafe_allow_html=True)
 # Store LLM generated responses
 if "messages" not in st.session_state:
