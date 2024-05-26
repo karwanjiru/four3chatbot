@@ -14,15 +14,17 @@ st.set_page_config(page_title="🤖💬 𝕮𝖆𝖗𝖊𝖊𝖗𝕮𝖔𝖒𝖕
 with st.sidebar:
     st.title('🤖💬 𝕮𝖆𝖗𝖊𝖊𝖗𝕮𝖔𝖒𝖕𝖆𝖘𝖘')
     st.write('This chatbot is created to assist in navigation through Four3.')
-    if 'REPLICATE_API_TOKEN' in st.secrets:
+    replicate_api = st.secrets.get('REPLICATE_API_TOKEN', '')
+    
+    if replicate_api:
         st.success('API key already provided!', icon='✅')
-        replicate_api = st.secrets['REPLICATE_API_TOKEN']
     else:
         replicate_api = st.text_input('Enter Replicate API token:', type='password')
         if not (replicate_api.startswith('r8_') and len(replicate_api) == 40):
             st.warning('Please enter your credentials!', icon='⚠️')
         else:
             st.success('Proceed to entering your prompt message!', icon='👉')
+    
     os.environ['REPLICATE_API_TOKEN'] = replicate_api
 
     st.subheader('Models and parameters')
@@ -37,9 +39,9 @@ with st.sidebar:
     st.markdown('📖 Learn how to build this app in this [blog](https://blog.streamlit.io/how-to-build-a-llama-2-chatbot/)!')
 
 # Store LLM generated responses
-if "messages" not in st.session_state.keys():
+if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
-if "chat_history" not in st.session_state.keys():
+if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
 # Display or clear chat messages
@@ -66,31 +68,40 @@ def generate_llama2_response(prompt_input):
             string_dialogue += "User: " + dict_message["content"] + "\n\n"
         else:
             string_dialogue += "Assistant: " + dict_message["content"] + "\n\n"
-    output = replicate.run(llm, input={"prompt": f"{string_dialogue} {prompt_input} Assistant: ",
-                                       "temperature": temperature, "top_p": top_p, "max_length": max_length, "repetition_penalty": 1})
-    return output
+    try:
+        output = replicate.run(
+            llm,
+            input={"prompt": f"{string_dialogue} {prompt_input} Assistant: ",
+                   "temperature": temperature, "top_p": top_p, "max_length": max_length, "repetition_penalty": 1}
+        )
+        return output
+    except replicate.exceptions.ReplicateError as e:
+        st.error(f"ReplicateError: {e}")
+        return None
 
 # User-provided prompt
-if prompt := st.chat_input(disabled=not replicate_api):
+prompt = st.chat_input(disabled=not replicate_api)
+if prompt:
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.write(prompt)
 
 # Generate a new response if last message is not from assistant
-if st.session_state.messages[-1]["role"] != "assistant":
+if st.session_state.messages[-1]["role"] != "assistant" and prompt:
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             response = generate_llama2_response(prompt)
-            full_response = ''
-            for item in response:
-                full_response += item
-            st.write(full_response)
-    message = {"role": "assistant", "content": full_response}
-    st.session_state.messages.append(message)
-    st.session_state.chat_history.append((prompt, full_response))
+            if response:
+                full_response = ''.join(response)
+                st.write(full_response)
+                message = {"role": "assistant", "content": full_response}
+                st.session_state.messages.append(message)
+                st.session_state.chat_history.append((prompt, full_response))
+            else:
+                st.error("Failed to generate a response. Please check your API key and input parameters.")
 
 # Button to navigate back to the blog app
 if st.button("Back to Blog App"):
-    # Replace this URL with the actual URL of your blog app
     st.write("You will be redirected to the blog app.")
-    # Add code to redirect to the blog app
+    # Implement the redirection logic if needed
+
