@@ -2,26 +2,32 @@ import streamlit as st
 import replicate
 import os
 from dotenv import load_dotenv
+from utils import replicate_run  # Import the debounced function
 import time
+import webbrowser
 
 # Load environment variables
 load_dotenv()
-api_token = st.secrets["general"]["REPLICATE_API_TOKEN"]
-os.environ['REPLICATE_API_TOKEN'] = api_token
 
+# Pre-prompt for the Llama model
+PRE_PROMPT = "You are a helpful personal assistant. You do not respond as 'User' or pretend to be 'User'. You only respond once as a Personal Assistant."
 
 # Set page title
-st.set_page_config(page_title="🤖💬 𝕮𝖆𝖗𝖊𝖊𝖗𝕮𝖔𝖒𝖕𝖆𝖘𝖘")
+st.set_page_config(page_title="🤖💬 CareerCompass")
 
 # Sidebar with API token and model selection
 with st.sidebar:
-    st.title('🤖💬 𝕮𝖆𝖗𝖊𝖊𝖗𝕮𝖔𝖒𝖕𝖆𝖘𝖘')
+    st.title('🤖💬 CareerCompass')
     st.write('This chatbot is created to assist in navigation through Four3.')
-    replicate_api = st.secrets.get('REPLICATE_API_TOKEN', '')
-    
+
+    # Text input for blog app URL
+    blog_app_url = st.text_input('Enter Blog App URL:', 'https://example.com')
+
+    replicate_api = os.getenv('REPLICATE_API_TOKEN')
     if replicate_api:
-        st.success('API key already provided!', icon='✅')
-    os.environ['REPLICATE_API_TOKEN'] = replicate_api
+        st.success('API key loaded from environment!', icon='✅')
+    else:
+        st.warning('API key not found in environment. Please check your .env file.', icon='⚠️')
 
     st.subheader('Models and parameters')
     selected_model = st.selectbox('Choose a Llama2 model', ['Llama2-7B', 'Llama2-13B'], key='selected_model')
@@ -33,6 +39,10 @@ with st.sidebar:
     top_p = st.slider('top_p', min_value=0.01, max_value=1.0, value=0.9, step=0.01)
     max_length = st.slider('max_length', min_value=32, max_value=128, value=120, step=8)
     st.markdown('📖 Learn how to build this app in this [blog](https://blog.streamlit.io/how-to-build-a-llama-2-chatbot/)!')
+
+    # Button to navigate back to the blog app
+    if st.button("Back to Blog App"):
+        webbrowser.open_new_tab(blog_app_url)
 
 # Store LLM generated responses
 if "messages" not in st.session_state:
@@ -54,50 +64,36 @@ def display_chat_history():
 def clear_chat_history():
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
     st.session_state.chat_history = []
+
 st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 
 # Function for generating LLaMA2 response
 def generate_llama2_response(prompt_input):
-    string_dialogue = "You are a helpful assistant. You do not respond as 'User' or pretend to be 'User'. You only respond once as 'Assistant'."
+    string_dialogue = PRE_PROMPT + "\n\n"
     for dict_message in st.session_state.messages:
         if dict_message["role"] == "user":
             string_dialogue += "User: " + dict_message["content"] + "\n\n"
         else:
             string_dialogue += "Assistant: " + dict_message["content"] + "\n\n"
-    try:
-        output = replicate.run(
-            llm,
-            input={"prompt": f"{string_dialogue} {prompt_input} Assistant: ",
-                   "temperature": temperature, "top_p": top_p, "max_length": max_length, "repetition_penalty": 1}
-        )
-        return output
-    except replicate.exceptions.ReplicateError as e:
-        st.error(f"ReplicateError: {e}")
-        return None
+    output = replicate_run(llm, {"prompt": f"{string_dialogue} {prompt_input} Assistant: ",
+                                 "temperature": temperature, "top_p": top_p, "max_length": max_length, "repetition_penalty": 1})
+    return output
 
 # User-provided prompt
-prompt = st.chat_input(disabled=not replicate_api)
-if prompt:
+if prompt := st.chat_input(disabled=not replicate_api):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.write(prompt)
 
 # Generate a new response if last message is not from assistant
-if st.session_state.messages[-1]["role"] != "assistant" and prompt:
+if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             response = generate_llama2_response(prompt)
-            if response:
-                full_response = ''.join(response)
-                st.write(full_response)
-                message = {"role": "assistant", "content": full_response}
-                st.session_state.messages.append(message)
-                st.session_state.chat_history.append((prompt, full_response))
-            else:
-                st.error("Failed to generate a response. Please check your API key and input parameters.")
-
-# Button to navigate back to the blog app
-if st.button("Back to Blog App"):
-    st.write("You will be redirected to the blog app.")
-    # Implement the redirection logic if needed
-
+            full_response = ''
+            for item in response:
+                full_response += item
+            st.write(full_response)
+    message = {"role": "assistant", "content": full_response}
+    st.session_state.messages.append(message)
+    st.session_state.chat_history.append((prompt, full_response))
