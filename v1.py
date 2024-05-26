@@ -34,7 +34,7 @@ with st.sidebar:
     elif selected_model == 'Llama2-13B':
         llm = 'a16z-infra/llama13b-v2-chat:df7690f1994d94e96ad9d568eac121aecf50684a0b0963b25a41cc40061269e5'
     
-    st.markdown("📖 Explore our career-focused social blog app for expert advice, valuable insights, and connections to fuel your professional growth. Join us now @ [Four3](https://blog.streamlit.io/how-to-build-a-llama-2-chatbot/)!")
+    st.markdown("📖 Explore our career-focused social blog app for expert advice, valuable insights, and connections to fuel your professional growth. Join us now @ [Four3](https://tr7j.github.io/Blogging-app)!")
 
     # Button to navigate back to the blog app
     if st.button("Back to Blog App"):
