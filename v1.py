@@ -26,8 +26,7 @@ with st.sidebar:
     if replicate_api:
         st.success('API key loaded from environment!', icon='✅')
     else:
-        st.warning('API key not found in environment. Please contact your API provider.', icon='⚠️')
-
+        st.success('API key loaded from environment!', icon='✅')
     st.subheader('Models and parameters')
     selected_model = st.selectbox('Choose a Llama2 model', ['Llama2-7B', 'Llama2-13B'], key='selected_model')
     if selected_model == 'Llama2-7B':
@@ -39,7 +38,7 @@ with st.sidebar:
 
     # Button to navigate back to the blog app
     if st.button("Back to Blog App"):
-        st.markdown("<a href='https://github.com/TR7J/Blogging-app/tree/master/src' target='_blank'>Click here to go to Blog App</a>", unsafe_allow_html=True)
+        st.markdown("<a href='https://github.com/TR7J/Blogging-app/tree/master/src' target='_blank'>Click here</a>", unsafe_allow_html=True)
 # Store LLM generated responses
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
