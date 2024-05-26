@@ -34,7 +34,7 @@ with st.sidebar:
     elif selected_model == 'Llama2-13B':
         llm = 'a16z-infra/llama13b-v2-chat:df7690f1994d94e96ad9d568eac121aecf50684a0b0963b25a41cc40061269e5'
     
-    st.markdown("📖 Looking to supercharge your career journey with a supportive community and invaluable insights? Look no further than our vibrant social blog app dedicated to careers! Dive into a dynamic world where professionals from diverse backgrounds share their experiences, offer invaluable advice, and inspire each other to reach new heights. Whether you're seeking guidance on navigating the job market, honing your skills, or exploring new career paths, our platform is your go-to destination. Join engaging discussions, gain insider tips from industry experts, and forge meaningful connections that can propel your career forward. Embrace the power of community and unlock endless opportunities for growth and success. Visit our social blog app for careers today and embark on a transformative journey towards realizing your professional dreams! [blog](https://blog.streamlit.io/how-to-build-a-llama-2-chatbot/)!")
+    st.markdown("📖 Explore our career-focused social blog app for expert advice, valuable insights, and connections to fuel your professional growth. Join us now! [blog](https://blog.streamlit.io/how-to-build-a-llama-2-chatbot/)!")
 
     # Button to navigate back to the blog app
     if st.button("Back to Blog App"):
