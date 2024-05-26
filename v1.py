@@ -78,11 +78,7 @@ if prompt := st.chat_input(placeholder="hello friend"):
 with st.sidebar:
     st.write()
     if st.button("Four3"):
-         st.markdown("Click me to go back to back to [The Hub]()")
+         st.markdown("Click me to go back to back to [Four3]()")
           
 
-    if st.button("Live Stock"):
-        st.markdown("Get to see [live stocks](https://fib.co.ke/live-markets/) get to understand the current  market") 
-
-    if st.button("Live Stock"):
-        st.markdown("Get to see [live stocks](https://fib.co.ke/live-markets/) get to understand the current  market") 
+    
