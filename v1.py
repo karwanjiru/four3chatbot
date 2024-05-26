@@ -1,8 +1,8 @@
 import streamlit as st
 import replicate
 import os
-from utils import debounce
 from dotenv import load_dotenv
+import time
 
 # Load environment variables
 load_dotenv()
@@ -39,6 +39,8 @@ with st.sidebar:
 # Store LLM generated responses
 if "messages" not in st.session_state.keys():
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
+if "chat_history" not in st.session_state.keys():
+    st.session_state.chat_history = []
 
 # Display or clear chat messages
 for message in st.session_state.messages:
@@ -53,10 +55,10 @@ def display_chat_history():
 
 def clear_chat_history():
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
+    st.session_state.chat_history = []
 st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 
-# Function for generating LLaMA2 response. Refactored from https://github.com/a16z-infra/llama2-chatbot
-@debounce(1.0)
+# Function for generating LLaMA2 response
 def generate_llama2_response(prompt_input):
     string_dialogue = "You are a helpful assistant. You do not respond as 'User' or pretend to be 'User'. You only respond once as 'Assistant'."
     for dict_message in st.session_state.messages:
@@ -79,17 +81,16 @@ if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             response = generate_llama2_response(prompt)
-            placeholder = st.empty()
             full_response = ''
             for item in response:
                 full_response += item
-                placeholder.markdown(full_response)
-            placeholder.markdown(full_response)
+            st.write(full_response)
     message = {"role": "assistant", "content": full_response}
     st.session_state.messages.append(message)
+    st.session_state.chat_history.append((prompt, full_response))
 
 # Button to navigate back to the blog app
 if st.button("Back to Blog App"):
     # Replace this URL with the actual URL of your blog app
-    st.experimental_set_query_params(page="blog")
-    st.experimental_rerun()
+    st.write("You will be redirected to the blog app.")
+    # Add code to redirect to the blog app
