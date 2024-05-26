@@ -7,7 +7,7 @@ import time
 import webbrowser
 
 # Load environment variables
-load_dotenv()
+load_dotenv('api.env')
 
 # Pre-prompt for the Llama model
 PRE_PROMPT = "You are a helpful personal assistant. You do not respond as 'User' or pretend to be 'User'. You only respond once as a Personal Assistant."
