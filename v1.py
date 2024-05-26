@@ -39,7 +39,7 @@ with st.sidebar:
 
     # Button to navigate back to the blog app
     if st.button("Back to Blog App"):
-        webbrowser.open_new_tab(https://github.com/TR7J/Blogging-app/tree/master/src)
+        webbrowser.open_new_tab("https://github.com/TR7J/Blogging-app/tree/master/src")
 
 # Store LLM generated responses
 if "messages" not in st.session_state:
