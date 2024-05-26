@@ -1,81 +1,92 @@
+import replicate
 import streamlit as st
 import os
 from dotenv import load_dotenv
-from utils import replicate_run
 import webbrowser
 
-# Load environment variables
+# Load environment variables from .env file
 load_dotenv()
 
-# Pre-prompt for the Llama model
-PRE_PROMPT = "You are a helpful personal assistant. You do not respond as 'User' or pretend to be 'User'. You only respond once as a Personal Assistant."
+st.set_page_config(page_title="Finance Bot💵 ", page_icon="💵")
 
-# Set page title
-st.set_page_config(page_title="🤖💬 CareerCompass")
+# REPLICATE_API_URL = "https://replicate.com/account/api-tokens"
+REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")
 
-# Sidebar with API token and model selection
 with st.sidebar:
-    st.title('🤖💬 CareerCompass')
-    st.write('This chatbot is created to assist in navigation through Four3.')
+    st.title("💵💬CareerCompass")
+    st.write("Explore our career-focused social blog app for expert advice, valuable insights, and connections to fuel your professional growth. Join us now!")
+    headers = {
+    "Authorization": f"Token {REPLICATE_API_TOKEN}",
+    "Content-Type": "application/json"
+}
 
-    replicate_api = os.getenv('REPLICATE_API_TOKEN')
-    if replicate_api:
-        st.success('API key loaded from environment!', icon='✅')
-    else:
-        st.warning('API key not found in environment. Please check your .env file.', icon='⚠️')
-
-    st.subheader('Models and parameters')
+    st.subheader('Models and Parameters')
     selected_model = st.selectbox('Choose a Llama2 model', ['Llama2-7B', 'Llama2-13B'], key='selected_model')
-    # Add more model selection options if needed
+    if selected_model == 'Llama2-7B':
+            llm = 'a16z-infra/llama7b-v2-chat:4f0a4744c7295c024a1de15e1a63c880d3da035fa1f49bfd344fe076074c8eea'
+    elif selected_model == 'Llama2-13B':
+            llm = 'a16z-infra/llama13b-v2-chat:df7690f1994d94e96ad9d568eac121aecf50684a0b0963b25a41cc40061269e5'
 
-    st.markdown('📖 Learn how to build this app in this [blog](https://blog.streamlit.io/how-to-build-a-llama-2-chatbot/)!')
-
-    # Button to navigate back to the blog app
-    if st.button("Back to Blog App"):
-        webbrowser.open_new_tab('https://github.com/TR7J/Blogging-app/tree/master/src')
-
-# Store chat messages
+    temperature = st.slider('Temperature', min_value=0.01, max_value=5.0, value=0.1, step=0.01)
+    top_p = st.slider('Top P', min_value=0.01, max_value=1.0, value=0.9, step=0.01)
+    max_length = st.slider('Max Length', min_value=32, max_value=128, value=120, step=8)
+       
+# first message to be initialized 
 if "messages" not in st.session_state:
-    st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
+    st.session_state.messages = [{"role": "assistant", "content": "Welcome to The Hub Bot! I'm here to help you with any questions about finance. What can I assist you with today?"}]
 
-# Display chat messages
+st.subheader("chats")
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.write(message["content"])
 
-# Function for generating LLaMA2 response
+def clear_chat_history():
+     st.session_state.messages = [{"role": "assistant", "content": "Welcome to The Hub Bot! I'm here to help you with any questions about finance. What can I assist you with today?"}]
+st.sidebar.button("Delete chats", on_click=clear_chat_history)
+
+
+#answer 
 def generate_llama2_response(prompt_input):
-    string_dialogue = PRE_PROMPT + "\n\n"
+    string_dialogue = "You are a helpful assistant. You do not respond as 'User' or pretend to be 'User'. You only respond once as 'Assistant'.\n\n"
     for dict_message in st.session_state.messages:
         if dict_message["role"] == "user":
             string_dialogue += "User: " + dict_message["content"] + "\n\n"
         else:
             string_dialogue += "Assistant: " + dict_message["content"] + "\n\n"
 
-    try:
-        output = replicate_run(llm, {
-            "prompt": f"{string_dialogue} {prompt_input} Assistant: ",
-            "repetition_penalty": 1
-        })
-        return output
-    except Exception as e:
-        st.error(f"Error generating response: {e}")
-        return None
+    output = replicate.run(
+        llm,  
+        input={"prompt": f"{string_dialogue} {prompt_input}\nAssistant: ", "temperature": temperature, "top_p": top_p, "max_length": max_length, "repetition_penalty": 1.0}
+    )
+    return output
 
-# User-provided prompt
-if prompt := st.text_input(label="Input prompt"):
+
+# Chat input and response generation
+if prompt := st.chat_input(placeholder="hello friend"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.write(prompt)
 
-# Generate a new response
-if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
-        with st.spinner("Thinking..."):
-            response = generate_llama2_response(st.session_state.messages[-1]["content"])
-            if response:
-                for item in response:
-                    st.write(item)
-                st.session_state.messages.append({"role": "assistant", "content": response})
+        with st.spinner("Gathering best info..."):
+            response = generate_llama2_response(prompt)
+            full_response = ''.join(response)
+            st.write(full_response)
+        message = {"role": "assistant", "content": full_response}
+        st.session_state.messages.append(message)
+
+with st.sidebar:
+    st.write()
+    if st.button("Four3"):
+         st.markdown("Click me to go back to back to [The Hub]()")
+          
+
+    if st.button("Live Stock"):
+        st.markdown("Get to see [live stocks](https://fib.co.ke/live-markets/) get to understand the current  market") 
+
+    if st.button("Live Stock"):
+        st.markdown("Get to see [live stocks](https://fib.co.ke/live-markets/) get to understand the current  market") 
+
+
+    # Add an Acknowledgment button to navigate back to the Blogging social app
+    if st.button("About us", key='ack_button'):
