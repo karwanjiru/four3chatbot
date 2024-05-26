@@ -7,7 +7,7 @@ import time
 import webbrowser
 
 # Load environment variables
-load_dotenv('api.env')
+load_dotenv(dotenv_path="api.env")
 
 # Pre-prompt for the Llama model
 PRE_PROMPT = "You are a helpful personal assistant. You do not respond as 'User' or pretend to be 'User'. You only respond once as a Personal Assistant."
@@ -18,10 +18,8 @@ st.set_page_config(page_title="🤖💬 CareerCompass")
 # Sidebar with API token and model selection
 with st.sidebar:
     st.title('🤖💬 CareerCompass')
-    st.write('This chatbot is created to assist in navigation through Four3.')
+    st.write('This chatbot is created to assist in making career choices.')
 
-    # Text input for blog app URL
-    blog_app_url = st.text_input('Enter Blog App URL:', 'https://example.com')
 
     replicate_api = os.getenv('REPLICATE_API_TOKEN')
     if replicate_api:
@@ -35,10 +33,8 @@ with st.sidebar:
         llm = 'a16z-infra/llama7b-v2-chat:4f0a4744c7295c024a1de15e1a63c880d3da035fa1f49bfd344fe076074c8eea'
     elif selected_model == 'Llama2-13B':
         llm = 'a16z-infra/llama13b-v2-chat:df7690f1994d94e96ad9d568eac121aecf50684a0b0963b25a41cc40061269e5'
-    temperature = st.slider('temperature', min_value=0.01, max_value=1.0, value=0.1, step=0.01)
-    top_p = st.slider('top_p', min_value=0.01, max_value=1.0, value=0.9, step=0.01)
-    max_length = st.slider('max_length', min_value=32, max_value=128, value=120, step=8)
-    st.markdown('📖 Learn how to build this app in this [blog](https://blog.streamlit.io/how-to-build-a-llama-2-chatbot/)!')
+    
+    st.markdown("📖 Looking to supercharge your career journey with a supportive community and invaluable insights? Look no further than our vibrant social blog app dedicated to careers! Dive into a dynamic world where professionals from diverse backgrounds share their experiences, offer invaluable advice, and inspire each other to reach new heights. Whether you're seeking guidance on navigating the job market, honing your skills, or exploring new career paths, our platform is your go-to destination. Join engaging discussions, gain insider tips from industry experts, and forge meaningful connections that can propel your career forward. Embrace the power of community and unlock endless opportunities for growth and success. Visit our social blog app for careers today and embark on a transformative journey towards realizing your professional dreams! [blog](https://blog.streamlit.io/how-to-build-a-llama-2-chatbot/)!")
 
     # Button to navigate back to the blog app
     if st.button("Back to Blog App"):
@@ -76,7 +72,7 @@ def generate_llama2_response(prompt_input):
         else:
             string_dialogue += "Assistant: " + dict_message["content"] + "\n\n"
     output = replicate_run(llm, {"prompt": f"{string_dialogue} {prompt_input} Assistant: ",
-                                 "temperature": temperature, "top_p": top_p, "max_length": max_length, "repetition_penalty": 1})
+                                 "repetition_penalty": 1})
     return output
 
 # User-provided prompt
