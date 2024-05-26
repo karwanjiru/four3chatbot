@@ -15,17 +15,18 @@ PRE_PROMPT = "You are a helpful personal assistant. You do not respond as 'User'
 # Set page title
 st.set_page_config(page_title="🤖💬 CareerCompass")
 
+replicate_api = os.getenv('REPLICATE_API_TOKEN')
+
 # Sidebar with API token and model selection
 with st.sidebar:
     st.title('🤖💬 CareerCompass')
     st.write('This chatbot is created to assist in making career choices.')
 
 
-    replicate_api = os.getenv('REPLICATE_API_TOKEN')
     if replicate_api:
         st.success('API key loaded from environment!', icon='✅')
     else:
-        st.warning('API key not found in environment. Please contact your API.', icon='⚠️')
+        st.warning('API key not found in environment. Please contact your API provider.', icon='⚠️')
 
     st.subheader('Models and parameters')
     selected_model = st.selectbox('Choose a Llama2 model', ['Llama2-7B', 'Llama2-13B'], key='selected_model')
