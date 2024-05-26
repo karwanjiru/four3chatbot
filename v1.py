@@ -38,7 +38,7 @@ with st.sidebar:
 
     # Button to navigate back to the blog app
     if st.button("Back to Blog App"):
-        st.markdown("<a href='https://github.com/TR7J/Blogging-app/tree/master/src' target='_blank'>Click here</a>", unsafe_allow_html=True)
+        st.markdown("<a href='https://tr7j.github.io/Blogging-app/' target='_blank'>Click here</a>", unsafe_allow_html=True)
 # Store LLM generated responses
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
