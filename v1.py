@@ -33,9 +33,9 @@ with st.sidebar:
        
 # first message to be initialized 
 if "messages" not in st.session_state:
-    st.session_state.messages = [{"role": "assistant", "content": "Welcome to The Hub Bot! I'm here to help you with any questions about finance. What can I assist you with today?"}]
+    st.session_state.messages = [{"role": "assistant", "content": "Welcome to CareerCompass! I'm here to help you with any questions about careers. What would you like to know?"}]
 
-st.subheader("chats")
+st.subheader("CareerCompass")
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.write(message["content"])
